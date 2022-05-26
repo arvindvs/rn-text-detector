@@ -4,6 +4,7 @@
 #import <React/RCTBridge.h>
 #import <React/RCTLog.h>
 
+@import MLKitTextRecognitionCommon;
 @import MLKitTextRecognition;
 @import MLKitVision;
 
@@ -22,7 +23,7 @@ static NSString *const detectionNoResultsMessage = @"Something went wrong";
 NSMutableArray* prepareOutput(MLKText *result) {
     NSMutableArray *output = [NSMutableArray array];
     for (MLKTextBlock *block in result.blocks) {
-        
+
         NSMutableArray *blockElements = [NSMutableArray array];
         for (MLKTextLine *line in block.lines) {
             NSMutableArray *lineElements = [NSMutableArray array];
@@ -39,7 +40,7 @@ NSMutableArray* prepareOutput(MLKText *result) {
                                    };
                 [lineElements addObject:e];
             }
-            
+
             NSMutableDictionary *l = [NSMutableDictionary dictionary];
             l[@"text"] = line.text;
             l[@"cornerPoints"] = line.cornerPoints;
@@ -53,7 +54,7 @@ NSMutableArray* prepareOutput(MLKText *result) {
                                };
             [blockElements addObject:l];
         }
-        
+
         NSMutableDictionary *b = [NSMutableDictionary dictionary];
         b[@"text"] = block.text;
         b[@"cornerPoints"] = block.cornerPoints;
@@ -76,11 +77,11 @@ RCT_REMAP_METHOD(detectFromUri, detectFromUri:(NSString *)imagePath resolver:(RC
         resolve(@NO);
         return;
     }
-    
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSData *imageData = [NSData dataWithContentsOfURL:[NSURL URLWithString:imagePath]];
         UIImage *image = [UIImage imageWithData:imageData];
-        
+
         if (!image) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 RCTLog(@"No image found %@", imagePath);
@@ -114,11 +115,11 @@ RCT_REMAP_METHOD(detectFromUri, detectFromUri:(NSString *)imagePath resolver:(RC
                     resolve(pData);
                 });
             }
-            
+
         }];
-        
+
     });
-    
+
 }
 
 RCT_REMAP_METHOD(detectFromFile, detectFromFile:(NSString *)imagePath resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
@@ -126,11 +127,11 @@ RCT_REMAP_METHOD(detectFromFile, detectFromFile:(NSString *)imagePath resolver:(
         resolve(@NO);
         return;
     }
-    
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         NSData *imageData = [NSData dataWithContentsOfFile:imagePath];
         UIImage *image = [UIImage imageWithData:imageData];
-        
+
         if (!image) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 resolve(@NO);
@@ -149,7 +150,7 @@ RCT_REMAP_METHOD(detectFromFile, detectFromFile:(NSString *)imagePath resolver:(
                     @throw [NSException exceptionWithName:@"failure" reason:errorString userInfo:nil];
                     return;
                 }
-            
+
                 NSMutableArray *output = prepareOutput(result);
                 dispatch_async(dispatch_get_main_queue(), ^{
                     resolve(output);
@@ -164,10 +165,10 @@ RCT_REMAP_METHOD(detectFromFile, detectFromFile:(NSString *)imagePath resolver:(
                     resolve(pData);
                 });
             }
-            
+
         }];
     });
-    
+
 }
 
 
